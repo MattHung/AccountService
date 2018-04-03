@@ -1,0 +1,13 @@
+http://localhost:8080/AccountService/dealer/addDealer/?dealer_name=包網名稱
+http://localhost:8080/AccountService/dealer/delDealer/?dealer_id=5
+http://localhost:8080/AccountService/dealer/getDealer/?dealer_id=1,2,3
+http://localhost:8080/AccountService/dealer/getDealer/?dealer_name=包網名稱1,包網名稱2,包網名稱3
+
+http://localhost:8080/AccountService/account/addAccount/?dealer_id=1&user_name=test01&user_password=password1&currency=CNY
+http://localhost:8080/AccountService/account/getAccount/?dealer_id=1&user_id=1,2,3
+http://localhost:8080/AccountService/account/user_login/?dealer_id=1&user_name=test01&user_password=password1
+http://localhost:8080/AccountService/account/user_logout?dealer_id=1&user_name=test01
+http://localhost:8080/AccountService/account/checkUserLoggedIn/?dealer_id=1&user_name=test02&session_id=f467745bb3c31aca7c2e3981ed8c759d9b367a7fae2eb9a1bb8346d714a4aa79
+
+http://localhost:8080/AccountService/credit/addCredit/?dealer_id=1&user_id=1&amount=9999
+http://localhost:8080/AccountService/credit/getCredit/?dealer_id=1&user_id=1
