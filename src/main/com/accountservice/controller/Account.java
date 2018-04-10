@@ -43,7 +43,7 @@ public class Account {
 	public ApiResult<AccountInfo> addAccount(Model model, HttpServletRequest request, 
 			@RequestParam("dealer_id") int dealer_id,
 			@RequestParam("user_name") String user_name,
-			@RequestParam("user_password") String user_password,
+			@RequestParam("user_password1") String user_password,
 			@RequestParam("currency")  String currency) {		
 		
 		ApiResult<AccountInfo> result = accountService.addAccount(dealer_id, user_name, user_password, currency);		
