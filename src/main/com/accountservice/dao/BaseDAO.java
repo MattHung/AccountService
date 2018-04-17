@@ -8,6 +8,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.Table;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
@@ -46,7 +47,7 @@ public abstract class BaseDAO {
 	private Map<String, FieldIndex> indexes;
 	private ObjectMapper objectMapper;
 	
-	public String TABLENAME = "";
+	public String tableName = "";
 	
 	@Autowired
     private JedisCluster jedisCluster;
@@ -60,9 +61,15 @@ public abstract class BaseDAO {
 		logs = new LinkedList<LogObject>();
 		indexes = new ConcurrentHashMap<>();
 		objectMapper = new ObjectMapper();
+		
+		Table anno_table = getClass().getAnnotation(Table.class);
+		if(anno_table != null)
+			tableName = anno_table.name();		
 	}
 	
 	public void update() {}
+	
+	public String getTableName() {return tableName;}
 	
 	@SuppressWarnings("unchecked")
 	@Transactional
@@ -103,7 +110,7 @@ public abstract class BaseDAO {
 	}	
 	
 	protected String genRedisKeyByArgs(FieldSet ...fileds) {
-		String result = String.format("%s", TABLENAME);
+		String result = String.format("%s", getTableName());
 		
 		for(FieldSet filed : fileds)
 			result += String.format("_%s:%s", filed.getFieldName(), filed.getFieldValue());
@@ -112,7 +119,7 @@ public abstract class BaseDAO {
 	}
 	
 	protected String genRedisKeyByFields(FieldSet[] fileds) {
-		String result = String.format("%s", TABLENAME);
+		String result = String.format("%s", getTableName());
 		
 		for(FieldSet filed : fileds)
 			result += String.format("_%s:%s", filed.getFieldName(), filed.getFieldValue());
@@ -138,7 +145,7 @@ public abstract class BaseDAO {
 	}
 	
 	protected String setRedisCache(String fileds_key, String value) {
-		jedisCluster.set(String.format("%s_%s", TABLENAME, fileds_key), value);
+		jedisCluster.set(String.format("%s_%s", getTableName(), fileds_key), value);
 		return value;
 	}
 	
@@ -208,7 +215,7 @@ public abstract class BaseDAO {
 			return;
 		
 		try {		
-			String query = String.format("insert into %s(action, details, source_ip) values", "_logs_" + TABLENAME);
+			String query = String.format("insert into %s(action, details, source_ip) values", "_logs_" + getTableName());
 			
 			while(logs.size() > 0) {
 				LogObject log = logs.poll();

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.accountservice.dao.BaseDAO;
 import com.accountservice.dao.DealerDAO;
 import com.accountservice.model.dealer.DealerInfo;
 import com.accountservice.response.QueryInsertResult;
@@ -20,11 +21,6 @@ public class DealerService extends BaseService{
 	@Autowired
 	private DealerDAO dealerDAO;
 	
-	@PostConstruct
-	private void init() {
-		setDao(dealerDAO);
-	}
-		
 	public DealerInfo getDealer(int dealer_id, String dealer_name) {
 		QueryInsertResult<ArrayList<DealerInfo>> dealers = getDealer(new int[] {dealer_id}, new String[] {dealer_name});		
 		if(dealers.succeed)
@@ -79,5 +75,10 @@ public class DealerService extends BaseService{
 		}
 		
 		return result.setData(true, deleteResult, "looks good!");
+	}
+	
+	@Override
+	protected BaseDAO getDAO() {
+		return dealerDAO; 
 	}
 }

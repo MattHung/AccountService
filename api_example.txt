@@ -11,3 +11,9 @@ http://localhost:8080/AccountService/account/checkUserLoggedIn/?dealer_id=1&user
 
 http://localhost:8080/AccountService/credit/addCredit/?dealer_id=1&user_id=1&amount=9999
 http://localhost:8080/AccountService/credit/getCredit/?dealer_id=1&user_id=1
+
+http://localhost:6080/AccountService/game/addGame/?type=1&game_id=10004&name=%E6%A9%9F%E7%8E%87%E9%81%8A%E6%88%B2331
+http://localhost:6080/AccountService/game/getGames/?type=1
+
+http://localhost:6080/AccountService/machine/updateServer/?role=1&name=%E5%B9%B3%E5%8F%B0%E6%A9%9F%E5%99%A8B&ip_address=10.10.70.122
+http://localhost:6080/AccountService/machine/getServers/?role=1&id=7

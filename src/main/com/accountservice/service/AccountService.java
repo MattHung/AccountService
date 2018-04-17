@@ -37,7 +37,6 @@ public class AccountService extends BaseService{
 	
 	@PostConstruct
 	private void init() {
-		setDao(accountDAO);
 		objectMapper = new ObjectMapper();
 	}	
 	
@@ -228,5 +227,10 @@ public class AccountService extends BaseService{
  		}catch (Exception e) {
 			
 		}
+	}
+
+	@Override
+	protected BaseDAO getDAO() {
+		return accountDAO; 
 	}
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.accountservice.dao.BaseDAO;
 import com.accountservice.dao.CreditDAO;
 import com.accountservice.model.credit.CreditInfo;
 import com.accountservice.model.credit.Transaction;
@@ -16,11 +17,6 @@ public class CreditService extends BaseService{
 	
 	@Autowired
 	private CreditDAO creditDAO;
-	
-	@PostConstruct
-	private void init() {
-		setDao(creditDAO);
-	}
 	
 	@Transactional
 	public QueryInsertResult<CreditInfo> getCredit(int dealer_id, int user_id) {
@@ -72,5 +68,9 @@ public class CreditService extends BaseService{
 		
 		return	result.setData(true, creditInfo, "looks good!");
 	}
-
+	
+	@Override
+	protected BaseDAO getDAO() {
+		return creditDAO; 
+	}
 }

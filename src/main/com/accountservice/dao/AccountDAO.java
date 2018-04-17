@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.Table;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import com.accountservice.model.account.AccountInfo;
 import com.accountservice.types.FieldSet;
 
 @Repository(value = "AccountDAO")
+@Table(name = "users")
 public class AccountDAO extends BaseDAO{
 	public final int SESSION_EXPIRE_MINUTES = 10;
 	public final int MAX_FLUSH_UPDATE_SIZE = 300;
@@ -34,8 +36,7 @@ public class AccountDAO extends BaseDAO{
 	private Queue<AccountInfo> query_update;
 	
 	@PostConstruct
-	public void init(){
-		TABLENAME = "users";
+	public void init(){		
 		query_update = new ConcurrentLinkedQueue<>();
 		query_update_locker = new ReentrantLock();
 	}
@@ -63,7 +64,7 @@ public class AccountDAO extends BaseDAO{
 		if(accounts.size() == 0)
 			return;		
 
-		String query = String.format("insert into %s(dealer_id,user_id,session_id,session_id_updated_at) values ", TABLENAME);
+		String query = String.format("insert into %s(dealer_id,user_id,session_id,session_id_updated_at) values ", getTableName());
 		
 		for(int i=0; i<accounts.size(); i++) {
 			AccountInfo account = accounts.get(i);
@@ -144,7 +145,7 @@ public class AccountDAO extends BaseDAO{
 			String query = "";
 			
 			if(users_id.length>0) {
-				query = String.format("select * from %s where dealer_id=%d and user_id in (", TABLENAME, dealer_id);
+				query = String.format("select * from %s where dealer_id=%d and user_id in (", getTableName(), dealer_id);
 				for(int i=0; i<users_id.length; i++) {
 					query += String.valueOf(users_id[i]);
 					if(i != users_id.length-1)
@@ -156,7 +157,7 @@ public class AccountDAO extends BaseDAO{
 			}
 				
 			if(users_name.length>0 && SQLResult.size()==0) {
-				query = String.format("select * from %s where dealer_id=%d and user_name in (", TABLENAME, dealer_id);
+				query = String.format("select * from %s where dealer_id=%d and user_name in (", getTableName(), dealer_id);
 				for(int i=0; i<users_name.length; i++) {
 					query += String.format("'%s'", users_name[i]);
 					if(i != users_name.length-1)
@@ -182,14 +183,14 @@ public class AccountDAO extends BaseDAO{
 		try {			
 			String query = String.format("insert into %s(user_id,dealer_id, user_name, user_password)"
 					+ "select coalesce(max(user_id), 0)+1, %d, '%s', '%s' from %s where dealer_id=%d", 
-					TABLENAME, dealer_id, user_name, user_password, TABLENAME, dealer_id);
+					getTableName(), dealer_id, user_name, user_password, getTableName(), dealer_id);
 
  			sessionFactory.getCurrentSession().createSQLQuery(query).executeUpdate();
  			
  			query = "select LAST_INSERT_ID()";
  			long row_id = ((BigInteger)sessionFactory.getCurrentSession().createSQLQuery(query).uniqueResult()).longValue();
  			
- 			query = String.format("select * from %s where id=%d", TABLENAME, row_id);
+ 			query = String.format("select * from %s where id=%d", getTableName(), row_id);
  			accountInfo = (AccountInfo)sessionFactory.getCurrentSession().createSQLQuery(query).addEntity(AccountInfo.class).list().get(0);
 		}
 		catch (Exception e) {
@@ -233,7 +234,7 @@ public class AccountDAO extends BaseDAO{
 		try {
 			String query = String.format("select * from %s where dealer_id=%d and "
 										+ "user_name='%s' and user_password='%s'",
-										TABLENAME, dealer_id, user_name, user_password);
+										getTableName(), dealer_id, user_name, user_password);
 										
  			accountInfo = (AccountInfo)sessionFactory.getCurrentSession().createSQLQuery(query).addEntity(AccountInfo.class).uniqueResult();
  			

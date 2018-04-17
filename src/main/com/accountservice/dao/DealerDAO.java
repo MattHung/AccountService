@@ -3,6 +3,7 @@ package com.accountservice.dao;
 import java.util.ArrayList;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.Table;
 
 import org.springframework.stereotype.Repository;
 
@@ -10,11 +11,8 @@ import com.accountservice.helper.ExceptionHelper;
 import com.accountservice.model.dealer.DealerInfo;
 
 @Repository(value = "DealerDAO")
+@Table(name = "dealers")
 public class DealerDAO extends BaseDAO{
-	
-	@PostConstruct
-	public void init(){TABLENAME = "dealers";}
-	
 	@SuppressWarnings("unchecked")
 	public ArrayList<DealerInfo> getDealer(int[] dealers_id, String[] dealers_name) throws Exception{
 		ArrayList<DealerInfo> result = new ArrayList<DealerInfo>();
@@ -23,7 +21,7 @@ public class DealerDAO extends BaseDAO{
 			String query = "";
 			
 			if(dealers_id!=null && dealers_id.length > 0) {			
-				query = String.format("select * from %s where dealer_id in (", TABLENAME);
+				query = String.format("select * from %s where dealer_id in (", getTableName());
 				
 				for(int i=0; i<dealers_id.length; i++) {
 					query += String.valueOf(dealers_id[i]);
@@ -36,7 +34,7 @@ public class DealerDAO extends BaseDAO{
 			}
 			
 			if((result==null || result.size()==0) && dealers_name!=null && dealers_name.length > 0) {			
-				query = String.format("select * from %s where dealer_name in (", TABLENAME);
+				query = String.format("select * from %s where dealer_name in (", getTableName());
 				
 				for(int i=0; i<dealers_name.length; i++) {
 					String d_name = dealers_name[i]; 
@@ -63,12 +61,12 @@ public class DealerDAO extends BaseDAO{
 		try {
 			String query = String.format("insert into %s(dealer_id, dealer_name)"
 					+ "select coalesce(max(dealer_id), 0)+1, %s from %s", 
-					TABLENAME, dealer_name, TABLENAME);
+					getTableName(), dealer_name, getTableName());
 			
 			sessionFactory.getCurrentSession().createSQLQuery(query).executeUpdate();
 			
 			query = String.format("select * from %s where "
-					+ "dealer_name=%s", TABLENAME, dealer_name);
+					+ "dealer_name=%s", getTableName(), dealer_name);
 			
 			result = (DealerInfo)sessionFactory.getCurrentSession().createSQLQuery(query).addEntity(DealerInfo.class).uniqueResult();			
 		}catch (Exception e) {
@@ -82,7 +80,7 @@ public class DealerDAO extends BaseDAO{
 	public boolean deleteDealer(int dealer_id) throws Exception{		
 		try {
 			String query = String.format("delete from %s where dealer_id=%d", 
-					TABLENAME, dealer_id);
+					getTableName(), dealer_id);
 			
 			sessionFactory.getCurrentSession().createSQLQuery(query).executeUpdate();			
 		}catch (Exception e) {

@@ -10,17 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import redis.clients.jedis.JedisCluster;
-
 @Controller
 public class MetricController {		
 	private HashSet<String> paths;
 	
 	@Autowired
-	private MetricService metricService;
-	
-	@Autowired
-    private JedisCluster jedisCluster;
+	private MetricService metricService;	
 	
 	@PostConstruct
 	private void Init() {
@@ -34,12 +29,7 @@ public class MetricController {
 	
 	@RequestMapping(value = "/metric/status", method = RequestMethod.GET)
 	@ResponseBody
-	public StatusInfo getStatusMetric() {	
-		jedisCluster.set("zx_hello", "hi  welocme login!");
-	    String value=jedisCluster.get("zx_hello");
-	    
-	    value = jedisCluster.get("fefe");
-	    
+	public StatusInfo getStatusMetric() {
 	    return metricService.getOverview();
 	}
 }

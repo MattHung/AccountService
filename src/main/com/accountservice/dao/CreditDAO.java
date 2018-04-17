@@ -2,6 +2,7 @@ package com.accountservice.dao;
 
 
 import javax.annotation.PostConstruct;
+import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -12,16 +13,14 @@ import com.accountservice.model.credit.Transaction;
 import com.accountservice.service.AccountService;
 
 @Repository(value = "CreditDAO")
+@Table(name = "credit")
 public class CreditDAO extends BaseDAO{
 	@Autowired
 	private AccountService accountService;
 	
-	@PostConstruct
-	public void init(){TABLENAME = "credit";}
-	
 	public CreditInfo getCredit(int dealer_id, int user_id) throws Exception {
 		String query = String.format("select * from %s where "
-				+ "dealer_id=%d and user_id=%d", TABLENAME, dealer_id, user_id);  
+				+ "dealer_id=%d and user_id=%d", getTableName(), dealer_id, user_id);  
 		CreditInfo result = null;
 		
 		try {		
@@ -46,7 +45,7 @@ public class CreditDAO extends BaseDAO{
 			CreditInfo creditInfo = new CreditInfo(dealer_id, user_id, currency);
 			long id = (long)sessionFactory.getCurrentSession().save(creditInfo);
 			
-			String query = String.format("select * from %s where id=%d", TABLENAME, id);  
+			String query = String.format("select * from %s where id=%d", getTableName(), id);  
 					
 			result = (CreditInfo)sessionFactory.getCurrentSession().
 								createSQLQuery(query).addEntity(CreditInfo.class).uniqueResult();
@@ -66,7 +65,7 @@ public class CreditDAO extends BaseDAO{
 		
 			String query = String.format("update %s set balance=balance+(%.6f) "
 										+ "where dealer_id=%d and user_id=%d", 
-										TABLENAME, amount, dealer_id, user_id);  
+										getTableName(), amount, dealer_id, user_id);  
 					
 			CreditInfo beforeTrans = getCredit(dealer_id, user_id);
 			
