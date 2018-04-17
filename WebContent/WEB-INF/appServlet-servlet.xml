@@ -25,13 +25,15 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
-	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" /> 
-
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	
 	<beans:bean id="accountService" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<beans:property name="url"
-			value="jdbc:mysql://localhost:3306/accountservice?UseUnicode=true&amp;characterEncoding=utf8" />
+				value="jdbc:mysql://10.10.70.122:3306/accountservice?UseUnicode=true&amp;characterEncoding=utf8" />
+<!-- 			value="jdbc:mysql://localhost:3306/accountservice?UseUnicode=true&amp;characterEncoding=utf8" /> -->
+				
 		<beans:property name="username" value="root" />
 		<beans:property name="password" value="1234" />
 	</beans:bean>
@@ -63,6 +65,26 @@
 	</beans:bean>
 
 <!-- 	<beans:bean id="CreditDAO" 	class = "com.com.accountservice.dao.CreditDAO"></beans:bean> -->
+
+	<beans:bean name="genericObjectPoolConfig" class="org.apache.commons.pool2.impl.GenericObjectPoolConfig">
+		<beans:property name="maxWaitMillis" value="-1" />
+		<beans:property name="maxTotal" value="8" />
+		<beans:property name="minIdle" value="0" />
+		<beans:property name="maxIdle" value="8" />
+	</beans:bean>
+	<beans:bean id="jedisCluster" class="com.accountservice.redis.JedisClusterFactory">
+		<beans:property name="connectionTimeout" value="3000" />
+		<beans:property name="soTimeout" value="3000" />
+		<beans:property name="maxRedirections" value="3" />
+		<beans:property name="genericObjectPoolConfig" ref="genericObjectPoolConfig" />
+		<beans:property name="jedisClusterNodes">
+			<beans:set>							
+				<beans:value>10.10.70.122:6379</beans:value>
+				<beans:value>10.10.70.122:6380</beans:value>
+				<beans:value>10.10.70.122:6381</beans:value>				
+			</beans:set>
+		</beans:property>
+	</beans:bean>
 	
 	<context:component-scan base-package="com.accountservice" />
 	<tx:annotation-driven transaction-manager="transactionManager"/>

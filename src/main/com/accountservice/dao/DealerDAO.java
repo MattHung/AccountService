@@ -1,15 +1,19 @@
 package com.accountservice.dao;
 
 import java.util.ArrayList;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.stereotype.Repository;
 
 import com.accountservice.helper.ExceptionHelper;
-import com.accountservice.model.dealer.DealersLog;
 import com.accountservice.model.dealer.DealerInfo;
 
 @Repository(value = "DealerDAO")
 public class DealerDAO extends BaseDAO{
-	public final String TABLENAME = "dealers";
+	
+	@PostConstruct
+	public void init(){TABLENAME = "dealers";}
 	
 	@SuppressWarnings("unchecked")
 	public ArrayList<DealerInfo> getDealer(int[] dealers_id, String[] dealers_name) throws Exception{
@@ -87,11 +91,5 @@ public class DealerDAO extends BaseDAO{
 		}
 		
 		return true;
-	}
-	
-	@Override
-	protected void onFlushRequestLogs(String action, String details, String source_ip, Object result) {
-		DealersLog logs = new DealersLog(action, details, source_ip);
-		sessionFactory.getCurrentSession().save(logs);
-	}
+	}	
 }

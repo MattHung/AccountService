@@ -1,14 +1,21 @@
 package com.accountservice.service;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.transaction.annotation.Transactional;
 import com.accountservice.dao.BaseDAO;
 
-public class BaseService {
-	private BaseDAO baseDao;
+public class BaseService {	
+	protected BaseDAO baseDao;	
 	
 	public void setDao(BaseDAO dao) {
 		baseDao = dao;
+	}
+	
+	@Transactional
+	public void updateDao() {
+		baseDao.update();
+		baseDao.flushLogs();
 	}
 	
 	@Transactional

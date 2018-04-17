@@ -1,8 +1,9 @@
 package com.accountservice.service;
 
-import java.sql.Timestamp;
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -11,10 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.accountservice.dao.AccountDAO;
+import com.accountservice.dao.BaseDAO;
 import com.accountservice.helper.SHAHelper;
 import com.accountservice.helper.StringHelper;
 import com.accountservice.model.account.AccountInfo;
 import com.accountservice.response.QueryInsertResult;
+import com.accountservice.types.UserSessionCheck;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @Service(value = "AccountService")
@@ -28,9 +33,12 @@ public class AccountService extends BaseService{
 	@Autowired
 	private DealerService dealerService;
 	
+	private ObjectMapper objectMapper;
+	
 	@PostConstruct
 	private void init() {
 		setDao(accountDAO);
+		objectMapper = new ObjectMapper();
 	}	
 	
 	public AccountInfo getAccount(int dealer_id, int users_id, String users_name){
@@ -156,43 +164,67 @@ public class AccountService extends BaseService{
 	}
 	
 	@Transactional
-	public QueryInsertResult<AccountInfo> checkUserLoggedIn(int dealer_id, String user_name, String session_id) {
-		QueryInsertResult<AccountInfo> result = new QueryInsertResult<AccountInfo>();
-		user_name = StringHelper.clearInvalidChar(user_name);
-		session_id = StringHelper.clearInvalidChar(session_id);
+	public QueryInsertResult<List<UserSessionCheck>> checkUserLoggedIn(String users_json) {
+		QueryInsertResult<List<UserSessionCheck>> result = new QueryInsertResult<List<UserSessionCheck>>();
+		List<UserSessionCheck> users = null;
 		
-		AccountInfo accountInfo = null;
-		
-		if(dealerService.getDealer(dealer_id, "")==null)
-			return result.setNote("dealer_id not exists");
-		
-		if(dealer_id==0)
-			return result.setNote("invalid dealer_id");		
-		
- 		if(user_name==null || user_name.isEmpty())
-			return result.setNote("invalid user_name");
-		
-		if(session_id==null || session_id.isEmpty())
- 			return result.setData(false, accountInfo, "Invalid session_id!");
-		
-		try { 			
- 			accountInfo = accountDAO.checkUserLoggedIn(dealer_id, user_name, session_id);
-			if(accountInfo == null)
-				return result.setData(false, accountInfo, "cannot find this user!");
-			
-			if(!accountInfo.getSession_id().equals(session_id))
-				return result.setData(false, accountInfo, "Invalid session_id!");
- 		}catch (Exception e) {
-			return result.setData(false, accountInfo, e.getMessage());
+		try {		
+			users = objectMapper.readValue(users_json, new TypeReference<List<UserSessionCheck>>() {});			
+		}catch (Exception e) {
+			 return result.setNote("invalid json format");
 		}
 		
-		return result.setData(true, accountInfo, "looks good!");
+		users.sort(new Comparator<UserSessionCheck>() {
+			@Override
+			public int compare(UserSessionCheck o1, UserSessionCheck o2) {return o1.getDealer_id() - o2.getDealer_id();}
+		});
+		
+		List<UserSessionCheck> checkResults = new LinkedList<>();
+		
+		for(UserSessionCheck userSessoin : users) {
+			UserSessionCheck checkResult = new UserSessionCheck();
+			checkResult.setDealer_id(userSessoin.getDealer_id());
+			checkResult.setUser_name(userSessoin.getUser_name());
+			checkResult.setSession_id(userSessoin.getSession_id());
+			
+			AccountInfo accountInfo = null;
+			
+			if(dealerService.getDealer(checkResult.getDealer_id(), "")==null)
+				checkResult.setDetails("dealer_id not exists");			
+			else if(checkResult.getDealer_id()==0)
+				checkResult.setDetails("invalid dealer_id");			
+			else if(checkResult.getUser_name()==null || checkResult.getUser_name().isEmpty())
+	 			checkResult.setDetails("invalid user_name");			
+			else if(checkResult.getSession_id()==null || checkResult.getSession_id().isEmpty())
+				checkResult.setDetails("invalid session_id");
+			else {			
+				try { 			
+		 			accountInfo = accountDAO.checkUserLoggedIn(
+		 					checkResult.getDealer_id(), 
+		 					checkResult.getUser_name(), 
+		 					checkResult.getSession_id());
+		 			
+					if(accountInfo == null)
+						checkResult.setDetails("cannot find this user!");
+					else if(!accountInfo.getSession_id().equals(checkResult.getSession_id()))
+						checkResult.setDetails("Invalid session_id!");
+					else
+						checkResult.setSession_online(true);
+		 		}catch (Exception e) {
+		 			checkResult.setDetails(e.getMessage());
+				}
+			}
+			
+			checkResults.add(checkResult);
+		}
+		
+		return result.setData(true, checkResults, "looks good!");
 	}
 	
 	@Transactional
 	public void updateSession() {
 		try {
-			accountDAO.updateSession();
+			accountDAO.updateSession();			
  		}catch (Exception e) {
 			
 		}

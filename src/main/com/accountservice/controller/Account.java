@@ -1,7 +1,9 @@
 package com.accountservice.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,15 @@ import com.accountservice.helper.ApiResultHelper;
 import com.accountservice.model.account.AccountInfo;
 import com.accountservice.response.ApiResult;
 import com.accountservice.service.AccountService;
+import com.accountservice.types.UserSessionCheck;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 public class Account {
 	@Autowired
 	@Qualifier(value = "AccountService")
-	private AccountService accountService;	
+	private AccountService accountService;
 	
 	@ResponseBody
 	@RequestMapping(value = "/account/getAccount", method = RequestMethod.GET)	
@@ -82,15 +87,11 @@ public class Account {
 	
 	@ResponseBody
 	@RequestMapping(value = "/account/checkUserLoggedIn", method = RequestMethod.GET)
-	public ApiResult<AccountInfo> checkUserLoggedIn(Model model, HttpServletRequest request,
-			@RequestParam("dealer_id") int dealer_id,
-			@RequestParam("user_name")  String user_name,
-			@RequestParam("session_id") String session_id){
+	public ApiResult<List<UserSessionCheck>> checkUserLoggedIn(Model model, HttpServletRequest request,
+			@RequestParam("users") String users_json){
 		
-		ApiResult<AccountInfo> result = accountService.checkUserLoggedIn(dealer_id, user_name, session_id);		
+		ApiResult<List<UserSessionCheck>> result = accountService.checkUserLoggedIn(users_json);		
 		ApiResultHelper.assigenParam(request, result);
-		
-//		accountService.logRequest(request, result);
-		return result;		
+		return result;
 	}
 }

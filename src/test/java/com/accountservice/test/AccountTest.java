@@ -38,7 +38,7 @@ public class AccountTest {
     			.param("user_password", "password1")
     			.param("currency", "CNY")
     			.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-    			.andExpect(status().isOk()); 
+    			.andExpect(status().isOk());
     }
 	 
     @Test
@@ -47,6 +47,36 @@ public class AccountTest {
     	mockMvc.perform(get("/account/getAccount")
     			.param("dealer_id", "1")
     			.param("user_id", "1,2,3")
+    			.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+    			.andExpect(status().isOk()); 
+    }
+    
+    @Test
+    public void testUserLogin() throws Exception {
+//    	http://localhost:8080/AccountService/account/user_login/?dealer_id=1&user_name=test01&user_password=password1
+    	mockMvc.perform(get("/account/user_login")
+    			.param("dealer_id", "1")
+    			.param("user_name", "test01")
+    			.param("user_password", "password1")
+    			.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+    			.andExpect(status().isOk()); 
+    }
+    
+    @Test
+    public void testUserLogout() throws Exception {
+//    	http://localhost:8080/AccountService/account/user_logout?dealer_id=1&user_name=test01
+    	mockMvc.perform(get("/account/user_logout")
+    			.param("dealer_id", "1")
+    			.param("user_name", "test01")
+    			.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+    			.andExpect(status().isOk()); 
+    }
+    
+    @Test
+    public void testCheckUserLoggedIn() throws Exception {
+//    	http://localhost:8080/AccountService/account/checkUserLoggedIn/?users=[{%22dealer_id%22:1,%22user_name%22:%22test01%22,%22session_id%22:%22f91db717f92240daefd9bfa090f0a886b1a52402d05ebce04eff4abfdcef7b6b%22}]
+    	mockMvc.perform(get("/account/checkUserLoggedIn")
+    			.param("users", "[{\"dealer_id\":1,\"user_name\":\"test01\",\"session_id\":\"f91db717f92240daefd9bfa090f0a886b1a52402d05ebce04eff4abfdcef7b6b\"}]")
     			.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
     			.andExpect(status().isOk()); 
     }

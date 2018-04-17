@@ -1,26 +1,23 @@
 package com.accountservice.dao;
 
-import org.hibernate.SessionFactory;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.accountservice.helper.ExceptionHelper;
 import com.accountservice.model.credit.CreditInfo;
-import com.accountservice.model.credit.CreditLog;
 import com.accountservice.model.credit.Transaction;
 import com.accountservice.service.AccountService;
 
 @Repository(value = "CreditDAO")
 public class CreditDAO extends BaseDAO{
-	public final String TABLENAME = "credit";
-	
-	@Autowired
-	@Qualifier(value = "hibernate4AnnotatedSessionFactory")
-	private SessionFactory sessionFactory;
-	
 	@Autowired
 	private AccountService accountService;
+	
+	@PostConstruct
+	public void init(){TABLENAME = "credit";}
 	
 	public CreditInfo getCredit(int dealer_id, int user_id) throws Exception {
 		String query = String.format("select * from %s where "
@@ -91,11 +88,5 @@ public class CreditDAO extends BaseDAO{
 		}
 		
 		return result;
-	}
-
-	@Override
-	protected void onFlushRequestLogs(String action, String details, String source_ip, Object result) {
-		CreditLog logs = new CreditLog(action, details, source_ip);
-		sessionFactory.getCurrentSession().save(logs);		
 	}
 }
