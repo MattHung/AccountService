@@ -44,7 +44,7 @@
 		<beans:property name="dataSource" ref="accountService" />
 		<beans:property name="annotatedClasses">
 			<beans:list>
-				<beans:value>com.accountservice.model.account.AccountInfo</beans:value>
+				<beans:value>com.accountservice.model.account.SQLAccount</beans:value>
 				<beans:value>com.accountservice.model.account.UsersLog</beans:value>
 				
 				<beans:value>com.accountservice.model.credit.CreditInfo</beans:value>

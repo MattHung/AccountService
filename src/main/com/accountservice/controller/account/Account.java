@@ -1,4 +1,4 @@
-package com.accountservice.controller;
+package com.accountservice.controller.account;
 
 import java.util.ArrayList;
 import java.util.List;

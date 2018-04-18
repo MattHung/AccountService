@@ -24,7 +24,7 @@ public class DealerService extends BaseService{
 	public DealerInfo getDealer(int dealer_id, String dealer_name) {
 		QueryInsertResult<ArrayList<DealerInfo>> dealers = getDealer(new int[] {dealer_id}, new String[] {dealer_name});		
 		if(dealers.succeed)
-			return dealers.data.get(0);
+			return dealers.getData().get(0);
 		
 		return null;
 	}

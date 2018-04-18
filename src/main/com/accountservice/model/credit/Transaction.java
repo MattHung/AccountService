@@ -12,6 +12,10 @@ public class Transaction extends CreditInfo{
 	@JsonSerialize(using=JsonHelper.DoubleDesirializer.class)
 	public double afterTrans;
 	
+	public String api_key ;
+	
+	public String op_trace;
+	
 	public Transaction(CreditInfo creditInfo) {
 		CloneHelper.cloneObject(creditInfo, this);
 	}

@@ -1,4 +1,4 @@
-package com.accountservice.controller;
+package com.accountservice.controller.game;
 
 import java.util.List;
 

@@ -1,6 +1,4 @@
-package com.accountservice.controller;
-
-import java.lang.annotation.Retention;
+package com.accountservice.controller.credit;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,7 +21,7 @@ import com.accountservice.types.ServerRole;
 
 @Controller
 public class Credit {
-	public final String MESSAGE_NOT_ALLOW = "this server is forbidden!";
+	public final String MESSAGE_NOT_ALLOW = "not allowed to access credit!";
 	
 	@Autowired
 	@Qualifier(value= "CreditService")
@@ -33,11 +31,11 @@ public class Credit {
 	@Qualifier(value = "MachineService")
 	private MachineService machineService;
 	
-	private boolean checkAllowAccessCredit(String server_ip) {
+	private boolean checkAllowAccessCredit(ServerRole role, String server_ip, String api_key) {
 		if(server_ip.equals("0:0:0:0:0:0:0:1"))
 			return true;
 
-		return machineService.checkExist(ServerRole.Platfrom, server_ip);
+		return machineService.checkExist(role, server_ip, api_key);
 	}
 		
 	@ResponseBody
@@ -46,7 +44,8 @@ public class Credit {
 			@RequestParam("dealer_id") int dealer_id,
 			@RequestParam("user_id") int user_id) {
 		
-		if(!checkAllowAccessCredit(request.getRemoteAddr()))
+		if(!checkAllowAccessCredit(ServerRole.Platfrom, request.getRemoteAddr(), ""))
+		if(!checkAllowAccessCredit(ServerRole.GameServer, request.getRemoteAddr(), ""))
 			return (ApiResult<CreditInfo>)(new ApiResult<CreditInfo>().setNote(MESSAGE_NOT_ALLOW));
 		
 		ApiResult<CreditInfo> result = creditService.getCredit(dealer_id, user_id);
@@ -61,14 +60,18 @@ public class Credit {
 	public ApiResult<Transaction> addCredit(Model model, HttpServletRequest request,
 			@RequestParam("dealer_id") int dealer_id,
 			@RequestParam("user_id") int user_id,
-			@RequestParam("amount") double amount) {
+			@RequestParam("amount") double amount,
+			@RequestParam("api_key") String api_key,
+			@RequestParam("op_trace") String op_trace) {
 		
-		if(!checkAllowAccessCredit(request.getRemoteAddr()))
+		if(!checkAllowAccessCredit(ServerRole.Platfrom, request.getRemoteAddr(), api_key))
 			return (ApiResult<Transaction>)(new ApiResult<Transaction>().setNote(MESSAGE_NOT_ALLOW));
 		
 		ApiResult<Transaction> result = creditService.addCredit(dealer_id, user_id, amount);
-		ApiResultHelper.assigenParam(request, result);		
+		result.getData().api_key = api_key;
+		result.getData().op_trace = op_trace;
 		
+		ApiResultHelper.assigenParam(request, result);
 		creditService.logRequest(request, result);
 		return result;
 	}

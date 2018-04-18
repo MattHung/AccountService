@@ -1,9 +1,6 @@
-package com.accountservice.controller;
+package com.accountservice.controller.dealer;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;

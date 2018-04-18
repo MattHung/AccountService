@@ -1,7 +1,5 @@
 package com.accountservice.service;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +51,7 @@ public class CreditService extends BaseService{
 	}
 	
 	@Transactional
-	public QueryInsertResult<CreditInfo> addNewUser(int dealer_id, int user_id, String currency) {
+	public QueryInsertResult<CreditInfo> addNewUser(int dealer_id, long user_id, String currency) {
 		QueryInsertResult<CreditInfo> result = new QueryInsertResult<CreditInfo>();
 		CreditInfo creditInfo = null;
 		

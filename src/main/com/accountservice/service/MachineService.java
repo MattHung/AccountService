@@ -28,12 +28,14 @@ public class MachineService extends BaseService{
 	
 	@PostConstruct
 	private void init() {		
-		cacheList = instance.getServers(0, 0).data;
+		cacheList = instance.getServers(0, 0).getData();
 	}
 	
-	public boolean checkExist(ServerRole role, String ip_address) {
+	public boolean checkExist(ServerRole role, String ip_address, String api_key) {
 		for(ServerInfo server : cacheList)
-		if(role.getVal() == server.getRole() && ip_address.equals(server.getIp_address()))
+		if(role.getVal() == server.getRole() 
+			&& ip_address.equals(server.getIp_address())
+			&& api_key.equals(server.getApi_key()))
 			return true;
 		
 		return false;

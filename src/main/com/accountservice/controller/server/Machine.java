@@ -1,4 +1,4 @@
-package com.accountservice.controller;
+package com.accountservice.controller.server;
 
 import java.util.List;
 

@@ -45,7 +45,7 @@ public class AccountService extends BaseService{
 				new int[] {users_id}, new String[] {users_name});
 		
 		if(getResult.succeed)
-			return getResult.data.get(0);
+			return getResult.getData().get(0);
 		
 		return null;
 	}

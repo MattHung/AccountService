@@ -34,21 +34,14 @@ public class CreditDAO extends BaseDAO{
 		return result;
 	}	
 	
-	public CreditInfo addNewUser(int dealer_id, int user_id, String currency) throws Exception{		
-		if(accountService.getAccount(dealer_id, user_id, "") == null)
-			return null;
-		
+	public CreditInfo addNewUser(int dealer_id, long user_id, String currency) throws Exception{		
 		CreditInfo result = null;
 		
 		try {
 		
 			CreditInfo creditInfo = new CreditInfo(dealer_id, user_id, currency);
-			long id = (long)sessionFactory.getCurrentSession().save(creditInfo);
-			
-			String query = String.format("select * from %s where id=%d", getTableName(), id);  
-					
-			result = (CreditInfo)sessionFactory.getCurrentSession().
-								createSQLQuery(query).addEntity(CreditInfo.class).uniqueResult();
+			sessionFactory.getCurrentSession().save(creditInfo);
+			result = creditInfo;
 		}catch (Exception e) {
 			throw new Exception(ExceptionHelper.getDetails(e));
 		}

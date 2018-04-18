@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 import com.accountservice.helper.ExceptionHelper;
 import com.accountservice.helper.SHAHelper;
 import com.accountservice.model.account.AccountInfo;
+import com.accountservice.model.account.SQLAccount;
 import com.accountservice.types.FieldSet;
 
 @Repository(value = "AccountDAO")
@@ -106,10 +107,11 @@ public class AccountDAO extends BaseDAO{
 		AccountInfo accountInfo = null;
 		
 		for(int i= list_users_id.size()-1; i>=0; i--) {
-			int user_id = (int)list_users_id.get(i);
+			long user_id = list_users_id.get(i);
 			
-			key = genRedisKeyByArgs(new FieldSet("dealer_id", dealer_id),
-			  						new FieldSet("user_id", user_id));
+			key = genRedisKeyByArgs(new FieldSet("id", user_id),
+									new FieldSet("dealer_id", dealer_id)
+									);
 
 			accountInfo = getRedisCache(key, AccountInfo.class);
 			
@@ -145,7 +147,7 @@ public class AccountDAO extends BaseDAO{
 			String query = "";
 			
 			if(users_id.length>0) {
-				query = String.format("select * from %s where dealer_id=%d and user_id in (", getTableName(), dealer_id);
+				query = String.format("select * from %s where dealer_id=%d and id in (", getTableName(), dealer_id);
 				for(int i=0; i<users_id.length; i++) {
 					query += String.valueOf(users_id[i]);
 					if(i != users_id.length-1)
@@ -153,7 +155,7 @@ public class AccountDAO extends BaseDAO{
 				}
 				query += ")";
 				SQLResult = (ArrayList<AccountInfo>)sessionFactory.getCurrentSession().
-						createSQLQuery(query).addEntity(AccountInfo.class).list();
+						createSQLQuery(query).addEntity(SQLAccount.class).list();
 			}
 				
 			if(users_name.length>0 && SQLResult.size()==0) {
@@ -166,7 +168,7 @@ public class AccountDAO extends BaseDAO{
 				
 				query += ")";
 				SQLResult = (ArrayList<AccountInfo>)sessionFactory.getCurrentSession().
-						createSQLQuery(query).addEntity(AccountInfo.class).list();
+						createSQLQuery(query).addEntity(SQLAccount.class).list();
 			}
 		}catch (Exception e) {
 			sessionFactory.getCurrentSession().clear();
@@ -179,19 +181,10 @@ public class AccountDAO extends BaseDAO{
 	}
 	
 	public AccountInfo addAccount(int dealer_id, String user_name, String user_password) throws Exception {
- 		AccountInfo accountInfo = null;
+ 		SQLAccount accountInfo = new SQLAccount(dealer_id, user_name, user_password, ""); 		
+ 		
 		try {			
-			String query = String.format("insert into %s(user_id,dealer_id, user_name, user_password)"
-					+ "select coalesce(max(user_id), 0)+1, %d, '%s', '%s' from %s where dealer_id=%d", 
-					getTableName(), dealer_id, user_name, user_password, getTableName(), dealer_id);
-
- 			sessionFactory.getCurrentSession().createSQLQuery(query).executeUpdate();
- 			
- 			query = "select LAST_INSERT_ID()";
- 			long row_id = ((BigInteger)sessionFactory.getCurrentSession().createSQLQuery(query).uniqueResult()).longValue();
- 			
- 			query = String.format("select * from %s where id=%d", getTableName(), row_id);
- 			accountInfo = (AccountInfo)sessionFactory.getCurrentSession().createSQLQuery(query).addEntity(AccountInfo.class).list().get(0);
+			sessionFactory.getCurrentSession().save(accountInfo);
 		}
 		catch (Exception e) {
 			sessionFactory.getCurrentSession().clear();			
@@ -236,7 +229,7 @@ public class AccountDAO extends BaseDAO{
 										+ "user_name='%s' and user_password='%s'",
 										getTableName(), dealer_id, user_name, user_password);
 										
- 			accountInfo = (AccountInfo)sessionFactory.getCurrentSession().createSQLQuery(query).addEntity(AccountInfo.class).uniqueResult();
+ 			accountInfo = (AccountInfo)sessionFactory.getCurrentSession().createSQLQuery(query).addEntity(SQLAccount.class).uniqueResult();
  			
  			if(accountInfo == null)
  				return null;
@@ -319,7 +312,7 @@ public class AccountDAO extends BaseDAO{
 		
 		try {
 			ArrayList<AccountInfo> result = (ArrayList<AccountInfo>)sessionFactory.getCurrentSession().
-					createSQLQuery(query).addEntity(AccountInfo.class).list();
+					createSQLQuery(query).addEntity(SQLAccount.class).list();
 			
 			for(int i=0; i<result.size(); i++) {				
 				AccountInfo accountInfo = result.get(i);

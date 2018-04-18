@@ -1,9 +1,12 @@
 package com.accountservice.response;
 
 public class RequestResult<T> {
-	public boolean succeed;
-	public T data;
-	public String note; 
+	private T data;
+	
+	public boolean succeed;	
+	public String note;
+	
+	public T getData() {return data;}
 	
 	public RequestResult() {}	
 	
